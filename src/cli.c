@@ -24,7 +24,7 @@ struct config *config_init(int argc, char **argv) {
                 config->filepath = optarg;
                 break;
             case 'l':
-                if ((level = set_level(optarg) == UNDEFINED)) {
+                if ((level = set_level(optarg)) == UNDEFINED) {
                     goto stop;
                 }
                 config->level = level;

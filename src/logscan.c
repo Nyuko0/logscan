@@ -1,5 +1,6 @@
 #include "cli.h"
 #include "parser.h"
+#include "filter.h"
 #include "log_entry.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -65,6 +66,7 @@ int main(int argc, char** argv) {
 
     if (config->help) {
         print_help();
+        free(config);
         return 0;
     }
     char *line = NULL;
@@ -84,9 +86,9 @@ int main(int argc, char** argv) {
             goto error;
         }
 
-        printf("%s", ctime(&entry->timestamp));
-        printf("%s\n", entry->message);
-        printf("%s", entry->raw_line);
+        if (check_filter(config, entry)) {
+            printf("%s", entry->raw_line);
+        }
 
         free(line);
         free(entry->message);
