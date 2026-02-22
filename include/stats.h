@@ -13,6 +13,7 @@ struct log_stats {
 
 bool init_stats(void);
 void update_stats(struct log_entry *entry);
+void print_stats(void);
 void destroy_stats(void);
 
 #endif /* STATS_H */

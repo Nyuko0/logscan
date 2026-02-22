@@ -119,7 +119,6 @@ struct log_entry *parse_log_entry(char *log_str) {
     return entry;
 
 stop:
-    free(entry->message);
     free(entry);
     return NULL;
 }

@@ -2,10 +2,10 @@
 #include "parser.h"
 #include "filter.h"
 #include "log_entry.h"
+#include <stats.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 static void print_help(void) {
     printf(
@@ -63,11 +63,13 @@ int main(int argc, char** argv) {
     if (!config) {
         return 1;
     }
-
     if (config->help) {
         print_help();
         free(config);
         return 0;
+    }
+    if (config->stats) {
+        init_stats();
     }
     char *line = NULL;
     FILE* stream = fopen(config->filepath, "r");
@@ -80,10 +82,10 @@ int main(int argc, char** argv) {
             continue;
         }
         struct log_entry *entry = parse_log_entry(line);
+        update_stats(entry);
         if (entry == NULL) {
             free(line);
-            fclose(stream);
-            goto error;
+            continue;
         }
 
         if (check_filter(config, entry)) {
@@ -93,6 +95,10 @@ int main(int argc, char** argv) {
         free(line);
         free(entry->message);
         free(entry);
+    }
+    if (config->stats) {
+        print_stats();
+        destroy_stats();
     }
     free(config);
     if (fclose(stream) == -1) {
