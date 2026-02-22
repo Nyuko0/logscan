@@ -62,29 +62,22 @@ static void print_help(void)
         "  1   Error (invalid arguments, file error, parsing failure)\n");
 }
 
-int main(int argc, char **argv)
-{
-    struct config *config = config_init(argc, argv);
-    if (!config)
-    {
-        return 1;
-    }
+static bool apply_config(struct config *config) {
     if (config->help)
     {
         print_help();
         free(config);
-        return 0;
+        return false;
     }
     if (config->stats)
     {
         init_stats();
     }
+    return true;
+}
+
+static void log_parsing_loop(struct config *config, FILE* stream) {
     char *line = NULL;
-    FILE *stream = fopen(config->filepath, "r");
-    if (!stream)
-    {
-        goto error;
-    }
     while ((line = read_next_entry(stream)) != NULL)
     {
         if (*line == '\n')
@@ -93,15 +86,16 @@ int main(int argc, char **argv)
             continue;
         }
         struct log_entry *entry = parse_log_entry(line);
-        update_stats(entry);
         if (entry == NULL)
         {
             free(line);
+            update_stats(entry);
             continue;
         }
 
         if (check_filter(config, entry))
         {
+            update_stats(entry);
             printf("%s", entry->raw_line);
         }
 
@@ -109,6 +103,23 @@ int main(int argc, char **argv)
         free(entry->message);
         free(entry);
     }
+}
+
+int main(int argc, char **argv)
+{
+    struct config *config = config_init(argc, argv);
+    if (!config)
+    {
+        return 1;
+    }
+    if (!apply_config(config))
+        return 0;
+    FILE *stream = fopen(config->filepath, "r");
+    if (!stream)
+    {
+        goto error;
+    }
+    log_parsing_loop(config, stream);
     if (config->stats)
     {
         print_stats();
