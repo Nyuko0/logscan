@@ -91,6 +91,9 @@ static char *parse_level(char *str, enum level_t *level) {
 
 struct log_entry *parse_log_entry(char *log_str) {
     struct log_entry *entry = malloc(sizeof(struct log_entry));
+    if (!entry) {
+        return NULL;
+    }
     if (log_str == NULL || *log_str == '\0') {
         goto stop;
     }

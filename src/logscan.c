@@ -60,7 +60,7 @@ static void print_help(void) {
 
 int main(int argc, char** argv) {
     struct config *config = config_init(argc, argv);
-    if (config == NULL) {
+    if (!config) {
         return 1;
     }
 

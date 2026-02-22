@@ -15,6 +15,9 @@ static struct option options[] = { { "file", required_argument, NULL, 'f'},
 
 struct config *config_init(int argc, char **argv) {
     struct config *config = calloc(1, sizeof(struct config));
+    if (!config) {
+        return NULL;
+    }
     config->level = FATAL;
     char ch;
     enum level_t level;
