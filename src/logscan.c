@@ -1,94 +1,107 @@
-#include "cli.h"
-#include "parser.h"
-#include "filter.h"
-#include "log_entry.h"
 #include <stats.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static void print_help(void) {
+#include "cli.h"
+#include "filter.h"
+#include "log_entry.h"
+#include "parser.h"
+
+static void print_help(void)
+{
     printf(
-            "logscan - Fast log file analyzer written in C\n"
-            "\n"
-            "Usage:\n"
-            "  logscan -f <file> [OPTIONS]\n"
-            "\n"
-            "Description:\n"
-            "  logscan reads a log file in streaming mode and applies filters,\n"
-            "  statistics, and formatting without loading the entire file into memory.\n"
-            "\n"
-            "Required:\n"
-            "  -f, --file <path>              Path to the log file to analyze\n"
-            "\n"
-            "Filtering Options:\n"
-            "  -l, --level <LEVEL>            Show only logs matching LEVEL\n"
-            "                                  (TRACE, DEBUG, INFO, WARN, ERROR, FATAL)\n"
-            "\n"
-            "      --min-level <LEVEL>        Show logs with severity >= LEVEL\n"
-            "\n"
-            "  -c, --contains <STRING>        Show logs containing substring\n"
-            "\n"
-            "      --from <TIMESTAMP>         Show logs after timestamp\n"
-            "      --to <TIMESTAMP>           Show logs before timestamp\n"
-            "\n"
-            "                                  Timestamp format:\n"
-            "                                  \"YYYY-MM-DD HH:MM:SS\"\n"
-            "\n"
-            "Output Options:\n"
-            "  -s, --stats                    Display statistics only\n"
-            "      --top <N>                  Show top N most frequent messages\n"
-            "      --color                    Enable colored output\n"
-            "\n"
-            "Other Options:\n"
-            "  -h, --help                     Show this help message\n"
-            "      --version                  Show program version\n"
-            "\n"
-            "Examples:\n"
-            "  logscan -f server.log\n"
-            "  logscan -f server.log -l ERROR\n"
-            "  logscan -f server.log --min-level WARN\n"
-            "  logscan -f server.log -c \"database\" --color\n"
-            "  logscan -f server.log --stats\n"
-            "  logscan -f server.log --from \"2026-02-15 00:00:00\" --to \"2026-02-16 00:00:00\"\n"
-            "\n"
-            "Exit Status:\n"
-            "  0   Success\n"
-            "  1   Error (invalid arguments, file error, parsing failure)\n"
-            );
+        "logscan - Fast log file analyzer written in C\n"
+        "\n"
+        "Usage:\n"
+        "  logscan -f <file> [OPTIONS]\n"
+        "\n"
+        "Description:\n"
+        "  logscan reads a log file in streaming mode and applies filters,\n"
+        "  statistics, and formatting without loading the entire file into "
+        "memory.\n"
+        "\n"
+        "Required:\n"
+        "  -f, --file <path>              Path to the log file to analyze\n"
+        "\n"
+        "Filtering Options:\n"
+        "  -l, --level <LEVEL>            Show only logs matching LEVEL\n"
+        "                                  (TRACE, DEBUG, INFO, WARN, ERROR, "
+        "FATAL)\n"
+        "\n"
+        "      --min-level <LEVEL>        Show logs with severity >= LEVEL\n"
+        "\n"
+        "  -c, --contains <STRING>        Show logs containing substring\n"
+        "\n"
+        "      --from <TIMESTAMP>         Show logs after timestamp\n"
+        "      --to <TIMESTAMP>           Show logs before timestamp\n"
+        "\n"
+        "                                  Timestamp format:\n"
+        "                                  \"YYYY-MM-DD HH:MM:SS\"\n"
+        "\n"
+        "Output Options:\n"
+        "  -s, --stats                    Display statistics only\n"
+        "      --top <N>                  Show top N most frequent messages\n"
+        "      --color                    Enable colored output\n"
+        "\n"
+        "Other Options:\n"
+        "  -h, --help                     Show this help message\n"
+        "      --version                  Show program version\n"
+        "\n"
+        "Examples:\n"
+        "  logscan -f server.log\n"
+        "  logscan -f server.log -l ERROR\n"
+        "  logscan -f server.log --min-level WARN\n"
+        "  logscan -f server.log -c \"database\" --color\n"
+        "  logscan -f server.log --stats\n"
+        "  logscan -f server.log --from \"2026-02-15 00:00:00\" --to "
+        "\"2026-02-16 00:00:00\"\n"
+        "\n"
+        "Exit Status:\n"
+        "  0   Success\n"
+        "  1   Error (invalid arguments, file error, parsing failure)\n");
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     struct config *config = config_init(argc, argv);
-    if (!config) {
+    if (!config)
+    {
         return 1;
     }
-    if (config->help) {
+    if (config->help)
+    {
         print_help();
         free(config);
         return 0;
     }
-    if (config->stats) {
+    if (config->stats)
+    {
         init_stats();
     }
     char *line = NULL;
-    FILE* stream = fopen(config->filepath, "r");
-    if (!stream) {
+    FILE *stream = fopen(config->filepath, "r");
+    if (!stream)
+    {
         goto error;
     }
-    while ((line = read_next_entry(stream)) != NULL) {
-        if (*line == '\n') {
+    while ((line = read_next_entry(stream)) != NULL)
+    {
+        if (*line == '\n')
+        {
             free(line);
             continue;
         }
         struct log_entry *entry = parse_log_entry(line);
         update_stats(entry);
-        if (entry == NULL) {
+        if (entry == NULL)
+        {
             free(line);
             continue;
         }
 
-        if (check_filter(config, entry)) {
+        if (check_filter(config, entry))
+        {
             printf("%s", entry->raw_line);
         }
 
@@ -96,12 +109,14 @@ int main(int argc, char** argv) {
         free(entry->message);
         free(entry);
     }
-    if (config->stats) {
+    if (config->stats)
+    {
         print_stats();
         destroy_stats();
     }
     free(config);
-    if (fclose(stream) == -1) {
+    if (fclose(stream) == -1)
+    {
         return 1;
     }
     return 0;
