@@ -2,16 +2,7 @@
 #define CLI_H
 
 #include <stdbool.h>
-
-enum level_t {
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL,
-    UNDEFINED
-};
+#include "level.h"
 
 struct config {
     char* filepath;

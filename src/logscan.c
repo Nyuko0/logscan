@@ -1,6 +1,9 @@
 #include "cli.h"
+#include "parser.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 static void print_help(void) {
     printf(
@@ -63,4 +66,34 @@ int main(int argc, char** argv) {
         print_help();
         return 0;
     }
+    char *line = NULL;
+    FILE* stream = fopen(config->filepath, "r");
+    if (!stream) {
+        goto error;
+    }
+    while ((line = read_next_entry(stream)) != NULL) {
+        if (*line == '\n') {
+            free(line);
+            continue;
+        }
+        struct log_entry *entry = parse_log_entry(line);
+        free(line);
+        if (entry == NULL) {
+            fclose(stream);
+            goto error;
+        }
+        printf("%s", ctime(&entry->timestamp));
+        printf("%s", entry->message);
+        free(entry->message);
+        free(entry);
+    }
+    free(config);
+    if (fclose(stream) == -1) {
+        return 1;
+    }
+    return 0;
+
+error:
+    free(config);
+    return 1;
 }

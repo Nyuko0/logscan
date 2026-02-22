@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "level.h"
 
 #include "cli.h"
 
@@ -12,31 +13,9 @@ static struct option options[] = { { "file", required_argument, NULL, 'f'},
                                    { "stats", no_argument, NULL, 's'},
                                    { "help", no_argument, NULL, 'h'}};
 
-static enum level_t set_level(char *str) {
-    if (!strcmp("TRACE", str)) {
-        return TRACE;
-    }
-    if (!strcmp("DEBUG", str)) {
-        return DEBUG;
-    }
-    if (!strcmp("INFO", str)) {
-        return INFO;
-    }
-    if (!strcmp("WARN", str)) {
-        return WARN;
-    }
-    if (!strcmp("ERROR", str)) {
-        return ERROR;
-    }
-    if (!strcmp("FATAL", str)) {
-        return FATAL;
-    }
-    return UNDEFINED;
-}
-
 
 struct config *config_init(int argc, char **argv) {
-    struct config *config = calloc(0, sizeof(struct config));
+    struct config *config = calloc(1, sizeof(struct config));
     char ch;
     enum level_t level;
     while((ch = getopt_long(argc, argv, "f:l:c:sh", options, NULL)) != -1) {
@@ -61,7 +40,6 @@ struct config *config_init(int argc, char **argv) {
                 return config;
             default:
                 goto stop;
-                break;
         }
     }
     return config;
