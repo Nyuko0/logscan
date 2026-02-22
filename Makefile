@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
 
-SRC= src/logscan.c src/cli.c src/parser.c src/level.c
+SRC= src/logscan.c src/cli.c src/parser.c src/level.c src/filter.c
 OBJ=$(SRC:.c=.o)
 
 TARGET = logscan

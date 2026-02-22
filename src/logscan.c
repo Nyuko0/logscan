@@ -1,5 +1,6 @@
 #include "cli.h"
 #include "parser.h"
+#include "log_entry.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,13 +78,17 @@ int main(int argc, char** argv) {
             continue;
         }
         struct log_entry *entry = parse_log_entry(line);
-        free(line);
         if (entry == NULL) {
+            free(line);
             fclose(stream);
             goto error;
         }
+
         printf("%s", ctime(&entry->timestamp));
-        printf("%s", entry->message);
+        printf("%s\n", entry->message);
+        printf("%s", entry->raw_line);
+
+        free(line);
         free(entry->message);
         free(entry);
     }

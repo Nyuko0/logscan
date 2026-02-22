@@ -3,3 +3,4 @@ logscan
 *.o
 compile_commands.json
 tests/
+.cache

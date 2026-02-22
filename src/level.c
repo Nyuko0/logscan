@@ -22,4 +22,3 @@ enum level_t set_level(char *str) {
     }
     return UNDEFINED;
 }
-

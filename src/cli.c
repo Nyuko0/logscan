@@ -13,9 +13,9 @@ static struct option options[] = { { "file", required_argument, NULL, 'f'},
                                    { "stats", no_argument, NULL, 's'},
                                    { "help", no_argument, NULL, 'h'}};
 
-
 struct config *config_init(int argc, char **argv) {
     struct config *config = calloc(1, sizeof(struct config));
+    config->level = FATAL;
     char ch;
     enum level_t level;
     while((ch = getopt_long(argc, argv, "f:l:c:sh", options, NULL)) != -1) {

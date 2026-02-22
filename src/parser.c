@@ -8,6 +8,7 @@
 #include <time.h>
 #include <string.h>
 #include "level.h"
+#include "log_entry.h"
 
 
 char *read_next_entry(FILE* stream) {
@@ -93,6 +94,7 @@ struct log_entry *parse_log_entry(char *log_str) {
     if (log_str == NULL || *log_str == '\0') {
         goto stop;
     }
+    entry->raw_line = log_str;
     time_t timestamp;
     log_str = parse_timestamp(log_str, &timestamp);
     if (log_str == NULL || *log_str == '\0') {
