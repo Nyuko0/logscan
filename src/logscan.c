@@ -109,11 +109,12 @@ int main(int argc, char **argv)
 {
     struct config *config = config_init(argc, argv);
     if (!config)
-    {
         return 1;
-    }
+    if (!config->filepath)
+        return 1;
     if (!apply_config(config))
         return 0;
+
     FILE *stream = fopen(config->filepath, "r");
     if (!stream)
     {
